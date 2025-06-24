@@ -18,8 +18,7 @@ This application is especially suited for students and professionals seeking a l
 ### - Clone the repository
 
 ```bash
-git clone https://github.com/UAdelaide/25S1_WDC_UG_Groups_72.git
-cd 25S1_WDC_UG_Groups_72
+git clone https://github.com/yyx201601/Weather_Diary-demo.git
 ```
 
 ### - Setup
