@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="weather-for">Weather Details</title>
+    <link rel="stylesheet" href="./css/weather_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="user-info" id="userInfo" style="display: none;">
+            <span data-i18n="welcome">Welcome</span>, <span id="currentUser"></span>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <span data-i18n="loading">Loading weather data...</span>
+        </div>
+
+        <div id="weather-content" style="display: none;">
+            <div class="weather-animation" id="weatherAnimation">🌤️</div>
+            
+            <div class="weather-summary">
+                <div id="location" class="location"></div>
+                <div id="region" class="region"></div>
+                <div id="temperature" class="temperature"></div>
+                <div id="condition" class="condition"></div>
+            </div>
+
+            <div class="time-info">
+                <span data-i18n="last-updated">Last updated:</span> 
+                <span id="lastUpdated"></span>
+            </div>
+
+            <div class="weather-details">
+                <div class="weather-detail-item">
+                    <div class="detail-icon">🌡️</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="feels-like">Feels Like:</span>
+                        <span id="feels-like" class="detail-value"></span>
+                    </div>
+                </div>
+                
+                <div class="weather-detail-item">
+                    <div class="detail-icon">💧</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="humidity">Humidity:</span>
+                        <span id="humidity" class="detail-value"></span>
+                    </div>
+                </div>
+                
+                <div class="weather-detail-item">
+                    <div class="detail-icon">💨</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="wind">Wind:</span>
+                        <span id="wind" class="detail-value"></span>
+                    </div>
+                </div>
+                
+                <div class="weather-detail-item">
+                    <div class="detail-icon">📊</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="pressure">Pressure:</span>
+                        <span id="pressure" class="detail-value"></span>
+                    </div>
+                </div>
+                
+                <div class="weather-detail-item">
+                    <div class="detail-icon">👁️</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="visibility">Visibility:</span>
+                        <span id="visibility" class="detail-value"></span>
+                    </div>
+                </div>
+                
+                <div class="weather-detail-item">
+                    <div class="detail-icon">☀️</div>
+                    <div class="detail-content">
+                        <span class="detail-label" data-i18n="uv-index">UV Index:</span>
+                        <span id="uv-index" class="detail-value"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-button" onclick="refreshWeather()">
+                    <span data-i18n="refresh">Refresh</span>
+                </button>
+                <button class="action-button secondary" onclick="shareWeather()">
+                    📤 <span data-i18n="share">Share</span>
+                </button>
+                <a href="index.html" class="action-button">
+                    <span data-i18n="back-to-search">Back to Search</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;">
+            <strong data-i18n="error">Error:</strong> 
+            <span id="error-text"></span>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let currentCity = '';
+        let weatherData = null;
+
+        const weatherIcons = {
+            'sunny': '☀️',
+            'clear': '☀️',
+            'partly cloudy': '⛅',
+            'cloudy': '☁️',
+            'overcast': '☁️',
+            'mist': '🌫️',
+            'fog': '🌫️',
+            'light rain': '🌦️',
+            'moderate rain': '🌧️',
+            'heavy rain': '🌧️',
+            'light snow': '🌨️',
+            'moderate snow': '❄️',
+            'heavy snow': '❄️',
+            'thunderstorm': '⛈️',
+            'storm': '🌪️'
+        };
+
+        function getWeatherIcon(condition) {
+            const lowerCondition = condition.toLowerCase();
+            
+            for (const [key, icon] of Object.entries(weatherIcons)) {
+                if (lowerCondition.includes(key)) {
+                    return icon;
+                }
+            }
+            
+            return '🌤️';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        async function refreshWeather() {
+            if (currentCity) {
+                await fetchWeatherData(currentCity);
+            }
+        }
+
+        function shareWeather() {
+            if (!weatherData) return;
+            
+            const shareText = `Weather in ${weatherData.location}: ${weatherData.temperature}, ${weatherData.condition}. Check it out!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `Weather for ${weatherData.location}`,
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    if (window.authManager) {
+                        window.authManager.showMessage('Weather info copied to clipboard!', 'success');
+                    }
+                });
+            }
+        }
+
+        async function fetchWeatherData(city) {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('weather-content').style.display = 'none';
+                document.getElementById('error-message').style.display = 'none';
+
+                const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to fetch weather data');
+                }
+
+                const data = await response.json();
+                weatherData = data;
+                displayWeatherData(data);
+
+            } catch (error) {
+                displayError(error.message);
+                console.error('Error fetching weather:', error);
+            }
+        }
+
+
+        function displayWeatherData(data) {
+            const weatherIcon = getWeatherIcon(data.condition);
+            document.getElementById('weatherAnimation').textContent = weatherIcon;
+
+            document.getElementById('location').textContent = data.location;
+            document.getElementById('region').textContent = data.region;
+            document.getElementById('temperature').textContent = data.temperature;
+            document.getElementById('condition').textContent = data.condition;
+            document.getElementById('feels-like').textContent = data.feels_like;
+            document.getElementById('humidity').textContent = data.humidity;
+            document.getElementById('wind').textContent = data.wind;
+            document.getElementById('pressure').textContent = data.pressure;
+            document.getElementById('visibility').textContent = data.visibility;
+            document.getElementById('uv-index').textContent = data.uv_index;
+
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('weather-content').style.display = 'block';
+
+            document.title = `Weather for ${data.location}`;
+        }
+
+        function displayError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').style.display = 'block';
+        }
+
+        function updateUserInfo() {
+            const userEmail = localStorage.getItem('userEmail');
+            const userInfo = document.getElementById('userInfo');
+            const currentUser = document.getElementById('currentUser');
+            
+            if (userEmail) {
+                currentUser.textContent = userEmail;
+                userInfo.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            updateUserInfo();
+
+            const params = new URLSearchParams(window.location.search);
+            const city = params.get('city');
+
+            if (!city) {
+                displayError('No city specified');
+                return;
+            }
+
+            currentCity = city;
+            await fetchWeatherData(city);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diary Editor - WeatherApp</title>
+    <link rel="stylesheet" href="./css/diary-editor_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <a href="diary.html" class="back-btn">
+                    ← <span>Back to Diaries</span>
+                </a>
+                <h1 class="header-title" id="pageTitle">New Diary</h1>
+            </div>
+
+            <div class="header-actions">
+                <button class="action-btn danger" onclick="clearDiary()" id="clearBtn">
+                    🗑️ <span>Clear</span>
+                </button>
+                <button class="action-btn primary" onclick="publishDiary()" id="publishBtn">
+                    📝 <span>Publish</span>
+                </button>
+            </div>
+        </div>
+
+
+        <div class="loading" id="loadingState" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span>Loading...</span>
+        </div>
+
+        <div class="editor-content" id="editorContent">
+            <div class="auto-save-indicator" id="autoSaveIndicator" style="display: none;">
+                <span>✓</span>
+                <span>Auto saved</span>
+            </div>
+
+            <form id="diaryForm">
+                <div class="form-section">
+                    <div class="form-group full-width">
+                        <input type="text" class="form-input title-input" id="titleInput"
+                            placeholder="What's on your mind today?" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group full-width">
+                        <label class="form-label">Content</label>
+                        <textarea class="form-input content-textarea" id="contentTextarea"
+                            placeholder="Start writing your diary entry..." required></textarea>
+                        <div class="word-count" id="wordCount">0 words</div>
+                    </div>
+                </div>
+
+                <!-- Metadata Section -->
+                <div class="metadata-section">
+                    <h3 class="metadata-title">
+                        🎭 <span>Mood & Details</span>
+                    </h3>
+
+                    <div class="form-group">
+                        <label class="form-label">How are you feeling?</label>
+                        <div class="mood-selector" id="moodSelector">
+                            <div class="mood-option" data-mood="very_happy">
+                                <span class="mood-emoji">😄</span>
+                                <span class="mood-text">Very Happy</span>
+                            </div>
+                            <div class="mood-option" data-mood="happy">
+                                <span class="mood-emoji">😊</span>
+                                <span class="mood-text">Happy</span>
+                            </div>
+                            <div class="mood-option selected" data-mood="neutral">
+                                <span class="mood-emoji">😐</span>
+                                <span class="mood-text">Neutral</span>
+                            </div>
+                            <div class="mood-option" data-mood="sad">
+                                <span class="mood-emoji">😔</span>
+                                <span class="mood-text">Sad</span>
+                            </div>
+                            <div class="mood-option" data-mood="very_sad">
+                                <span class="mood-emoji">😢</span>
+                                <span class="mood-text">Very Sad</span>
+                            </div>
+                            <div class="mood-option" data-mood="excited">
+                                <span class="mood-emoji">🤩</span>
+                                <span class="mood-text">Excited</span>
+                            </div>
+                            <div class="mood-option" data-mood="calm">
+                                <span class="mood-emoji">😌</span>
+                                <span class="mood-text">Calm</span>
+                            </div>
+                            <div class="mood-option" data-mood="anxious">
+                                <span class="mood-emoji">😰</span>
+                                <span class="mood-text">Anxious</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weather-section">
+                        <div class="location-weather-row">
+                            <div class="location-group">
+                                <label class="form-label">Location (City)</label>
+                                <input type="text" class="form-input" id="locationInput"
+                                    placeholder="Enter city name...">
+                            </div>
+                            <button type="button" class="check-weather-btn" id="checkWeatherBtn"
+                                onclick="checkWeather()">
+                                🌤️ <span>Check Weather</span>
+                            </button>
+                        </div>
+
+                        <div class="weather-group" style="margin-top: 15px;">
+                            <label class="form-label">Weather</label>
+                            <div class="weather-display" id="weatherDisplay" style="display: none;">
+                                <span id="weatherInfo">Click "Check Weather" to get current weather</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="privacy-section">
+                        <label class="privacy-toggle">
+                            <input type="checkbox" id="privateToggle" checked>
+                            <span class="privacy-slider"></span>
+                        </label>
+                        <span>Private diary (only you can see it)</span>
+                    </div>
+                </div>
+                <div class="delete-section" id="deleteSection" style="display: none;">
+                    <button type="button" class="delete-btn" onclick="deleteDiary()">
+                        🗑️ <span>Delete Diary</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/diary.js"></script>
+    <script src="js/diary-editor.js"></script>
+</body>
+
+</html>

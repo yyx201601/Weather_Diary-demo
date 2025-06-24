@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Diary - WeatherApp</title>
+    <link rel="stylesheet" href="./css/diary_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">
+                    ← <span data-i18n="back">Back</span>
+                </a>
+                <div class="header-title">
+                    <span>📔</span>
+                    <h1>My Diary</h1>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="search-diaries" placeholder="Search diaries...">
+                    <button class="search-btn" onclick="searchDiaries()">🔍</button>
+                </div>
+                <a href="diary-editor.html" class="action-btn">
+                    ✏️ <span data-i18n="new-diary">New Diary</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        📊 <span data-i18n="statistics">Statistics</span>
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalDiaries">0</div>
+                            <div class="stat-label" data-i18n="total">Total</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="monthDiaries">0</div>
+                            <div class="stat-label" data-i18n="this-month">This Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        🔍 <span data-i18n="filters">Filters</span>
+                    </h3>
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <label class="filter-label" data-i18n="sort-by">Sort by:</label>
+                            <select class="filter-select" id="sortSelect">
+                                <option value="created_at" data-i18n="date-created">Date Created</option>
+                                <option value="updated_at" data-i18n="date-updated">Date Updated</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label" data-i18n="order">Order:</label>
+                            <select class="filter-select" id="orderSelect">
+                                <option value="DESC" data-i18n="newest-first">Newest First</option>
+                                <option value="ASC" data-i18n="oldest-first">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" data-i18n="mood">Mood:</label>
+                        <div class="mood-filters">
+                            <button class="mood-btn active" data-mood="all">
+                                🌈 <span data-i18n="all">All</span>
+                            </button>
+                            <button class="mood-btn" data-mood="very_happy">😄</button>
+                            <button class="mood-btn" data-mood="happy">😊</button>
+                            <button class="mood-btn" data-mood="neutral">😐</button>
+                            <button class="mood-btn" data-mood="sad">😔</button>
+                            <button class="mood-btn" data-mood="very_sad">😢</button>
+                            <button class="mood-btn" data-mood="excited">🤩</button>
+                            <button class="mood-btn" data-mood="calm">😌</button>
+                            <button class="mood-btn" data-mood="anxious">😰</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="content-header">
+                    <div class="view-toggles">
+                        <button class="view-btn active" data-view="grid">
+                            📄 <span data-i18n="grid-view">Grid</span>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            📋 <span data-i18n="list-view">List</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading" id="loadingState">
+                    <div class="loading-spinner"></div>
+                    <span data-i18n="loading">Loading diaries...</span>
+                </div>
+
+                <div class="diary-grid" id="diaryGrid" style="display: none;">
+
+                </div>
+
+                <div class="diary-list" id="diaryList" style="display: none;">
+
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">📔</div>
+                    <h3 data-i18n="no-diaries">No diaries found</h3>
+                    <p data-i18n="no-diaries-desc">Start writing your first diary entry!</p>
+                </div>
+
+                <div class="pagination" id="pagination" style="display: none;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/diary.js"></script>
+
+    <script>
+        const moodIcons = {
+            'very_happy': '😄',
+            'happy': '😊',
+            'neutral': '😐',
+            'sad': '😔',
+            'very_sad': '😢',
+            'excited': '🤩',
+            'calm': '😌',
+            'anxious': '😰'
+        };
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function searchDiaries() {
+            const searchTerm = document.getElementById('searchInput').value;
+            window.diaryManager.searchDiaries(searchTerm);
+        }
+
+        document.getElementById('searchInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchDiaries();
+            }
+        });
+
+        function viewDiary(diaryId) {
+            window.location.href = `diary-editor.html?id=${diaryId}&mode=view`;
+        }
+
+        function editDiary(diaryId) {
+            window.location.href = `diary-editor.html?id=${diaryId}&mode=edit`;
+        }
+
+        async function deleteDiary(diaryId) {
+            if (!confirm('Are you sure you want to delete this diary entry?')) {
+                return;
+            }
+
+            try {
+                await window.diaryManager.deleteDiary(diaryId);
+                window.diaryManager.loadDiaries();
+            } catch (error) {
+                console.error('Error deleting diary:', error);
+                if (window.authManager) {
+                    window.authManager.showMessage('Failed to delete diary', 'error');
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login/login.html';
+                return;
+            }
+
+
+            if (window.DiaryManager) {
+                window.diaryManager = new window.DiaryManager();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - WeatherApp</title>
+    <link rel="stylesheet" href="./css/profile_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+            <div class="profile-avatar">👤</div>
+            <h1>User Profile</h1>
+            <div class="profile-email" id="profileEmail">Loading...</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">📋</span>
+                    <span>Account Information</span>
+                </h2>
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" id="userEmailInfo">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value status-active" id="userStatus">Active</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Member Since:</span>
+                        <span class="info-value" id="memberSince">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">📧</span>
+                    <span>Change Email</span>
+                </h2>
+                <button class="form-button" onclick="openChangeEmailModal()">Update Email</button>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">🔒</span>
+                    <span>Change Password</span>
+                </h2>
+                <button class="form-button" onclick="openChangePasswordModal()">Update Password</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal" id="emailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Email</h3>
+                <button class="close-btn" onclick="closeModal('emailModal')">&times;</button>
+            </div>
+            <form id="emailForm">
+                <div class="form-group">
+                    <label class="form-label">New Email:</label>
+                    <input type="email" class="form-input" id="newEmail" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="form-button">Update</button>
+                    <button type="button" class="form-button secondary"
+                        onclick="closeModal('emailModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Password</h3>
+                <button class="close-btn" onclick="closeModal('passwordModal')">&times;</button>
+            </div>
+            <div class="password-requirements">
+                <!-- 以后可以改成动态密码强度？ -->
+                <strong>Password Requirements:</strong>
+                <ul>
+                    <li>At least 8 characters long</li>
+                    <li>Contains uppercase letter</li>
+                    <li>Contains lowercase letter</li>
+                    <li>Contains number</li>
+                    <li>Contains special symbol</li>
+                </ul>
+            </div>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label class="form-label">Current Password:</label>
+                    <input type="password" class="form-input" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password:</label>
+                    <input type="password" class="form-input" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password:</label>
+                    <input type="password" class="form-input" id="confirmPassword" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="form-button">Update</button>
+                    <button type="button" class="form-button secondary"
+                        onclick="closeModal('passwordModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+
+</html>
